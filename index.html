@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>root@san_valentin:~#</title>
+
+    <meta property="og:title" content="⚠️ SYSTEM ALERT: CRITICAL VULNERABILITY">
+    <meta property="og:description" content="Se ha detectado una intrusión en el kernel del corazón. Requiere validación del usuario ROOT.">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/3064/3064197.png">
+    
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3064/3064197.png">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        :root { --bg: #0a0a0a; --green: #0f0; --pink: #ff00ff; --red: #ff3333; }
+        body {
+            margin: 0; padding: 20px; background-color: var(--bg); color: var(--green);
+            font-family: 'Fira Code', monospace; min-height: 90vh; display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden; user-select: none;
+        }
+        #matrix-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.2; }
+        body::after {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.1) 1px, transparent 2px, transparent 5px);
+            pointer-events: none; z-index: 10;
+        }
+        .container {
+            max-width: 800px; width: 100%; border: 2px solid var(--green); padding: 20px;
+            box-shadow: 0 0 15px var(--green); background: rgba(0, 20, 0, 0.95);
+            position: relative; z-index: 20; min-height: 600px; display: flex; flex-direction: column;
+        }
+        .sys-header {
+            border-bottom: 1px dashed var(--green); padding-bottom: 15px; margin-bottom: 20px;
+            display: flex; justify-content: space-between; flex-wrap: wrap;
+        }
+        .heart-beat { color: red; animation: pulse 0.8s infinite; display: inline-block; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+        /* --- TERMINAL --- */
+        .terminal-window {
+            background-color: #000; padding: 15px; height: 350px; overflow-y: auto;
+            border: 1px solid #333; margin-bottom: 20px;
+        }
+        #typing-text { white-space: pre-wrap; font-size: 1.1rem; line-height: 1.5; }
+        .cursor { display: inline-block; width: 10px; height: 20px; background-color: var(--green); animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
+        /* --- BOTONES --- */
+        .btn-hack {
+            background: transparent; color: var(--pink); border: 2px solid var(--pink);
+            padding: 15px 30px; font-family: 'Fira Code', monospace; font-size: 1.2rem; cursor: pointer;
+            transition: all 0.3s; text-transform: uppercase; margin-top: 10px;
+        }
+        .btn-hack:hover { background: var(--pink); color: black; box-shadow: 0 0 20px var(--pink); }
+
+        /* --- GAME 1: FIREWALL --- */
+        #game1-firewall { display: none; text-align: center; }
+        .firewall-track {
+            width: 300px; height: 30px; border: 2px solid var(--green); margin: 20px auto;
+            position: relative; background: #000; border-radius: 15px; overflow: hidden;
+        }
+        .safe-zone {
+            position: absolute; left: 40%; width: 20%; height: 100%; background: rgba(0, 255, 0, 0.3);
+            border-left: 1px solid var(--green); border-right: 1px solid var(--green);
+        }
+        .moving-bar {
+            position: absolute; left: 0; top: 0; width: 10px; height: 100%; background: var(--pink);
+            box-shadow: 0 0 10px var(--pink);
+        }
+
+        /* --- GAME 2: MALWARE --- */
+        #game2-malware { display: none; text-align: center; position: relative; height: 350px; border: 1px dashed #333; }
+        .virus-btn {
+            position: absolute; width: 50px; height: 50px; background: red; border-radius: 50%;
+            border: 2px solid white; cursor: pointer; display: flex; justify-content: center; align-items: center;
+            font-weight: bold; color: white; animation: popIn 0.3s;
+        }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+
+        /* --- GAME 3: SNAKE --- */
+        #game3-snake { display: none; text-align: center; }
+        #snake-canvas {
+            border: 2px solid var(--green); background-color: #000; display: block; margin: 0 auto;
+        }
+        .mobile-controls { display: none; margin-top: 15px; justify-content: center; gap: 10px; }
+        .d-pad-btn {
+            background: rgba(0, 255, 0, 0.1); border: 1px solid var(--green); color: var(--green);
+            width: 50px; height: 50px; font-size: 20px; border-radius: 50%;
+        }
+
+        /* --- COLLAGE FINAL --- */
+        #secret-collage { display: none; margin-top: 30px; position: relative; height: 500px; animation: fadeIn 2s; }
+        .final-msg { text-align: center; color: var(--pink); font-size: 2rem; margin-bottom: 20px; font-weight: bold; text-shadow: 0 0 10px var(--pink); animation: blink 2s infinite; }
+        
+        .polaroid {
+            position: absolute; background: white; padding: 10px 10px 35px 10px; width: 160px;
+            box-shadow: 3px 4px 15px rgba(0,0,0,0.5); border: 1px solid #ccc;
+            cursor: grab; /* Manita para agarrar */
+            transition: transform 0.1s; /* Movimiento suave */
+        }
+        .polaroid:active { cursor: grabbing; transform: scale(1.1); z-index: 100 !important; }
+        
+        .polaroid img { width: 100%; height: auto; display: block; filter: sepia(20%); pointer-events: none; }
+        
+        /* Posiciones iniciales */
+        .p1 { top: 15%; left: 5%; transform: rotate(-12deg); z-index: 2; }
+        .p2 { top: 25%; right: 10%; transform: rotate(15deg); z-index: 1; }
+        .p3 { bottom: 15%; left: 15%; transform: rotate(-8deg); z-index: 3; }
+        .p4 { bottom: 10%; right: 20%; transform: rotate(10deg); z-index: 2; }
+        .p5 { top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(0deg) scale(1.1); z-index: 10; border: 2px solid var(--pink); }
+
+        .footer { width: 100%; text-align: right; padding-right: 20px; padding-top: 20px; color: var(--green); font-size: 0.7rem; opacity: 0.5; margin-top: auto; position: relative; z-index: 5; }
+        
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @media (max-width: 600px) {
+            .mobile-controls { display: flex; }
+            .polaroid { width: 120px; }
+            #secret-collage { height: 450px; }
+            .final-msg { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix-bg"></canvas>
+    <audio id="audioTeclado" loop preload="auto"><source src="teclado.mp3" type="audio/mpeg"></audio>
+    <audio id="audioFinal" preload="auto"><source src="musica.mp3" type="audio/mpeg"></audio>
+
+    <div id="start-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:999; display:flex; justify-content:center; align-items:center; cursor:pointer;" onclick="iniciarSistema()">
+        <h1 style="color:var(--green); border:1px solid var(--green); padding:20px;">> CLICK TO INITIALIZE SYSTEM_</h1>
+    </div>
+
+    <div class="container">
+        <div class="sys-header">
+            <div>[STATUS: <span style="color:var(--red)" id="sys-status">LOCKED</span>]</div>
+            <div class="sys-info">USER: ADMIN MI NIÑO | <span class="heart-beat">❤️❤️❤️</span></div>
+        </div>
+
+        <div class="terminal-window" id="terminal-area">
+            <span id="typing-text"></span><span class="cursor"></span>
+        </div>
+
+        <div id="startBtnArea" style="text-align: center; display: none;">
+            <p style="color: var(--pink);">> SYSTEM LOCKED. DECRYPTION GAMES REQUIRED.</p>
+            <button class="btn-hack" onclick="startLevel1()">[ INICIAR DESENCRIPTADO ]</button>
+        </div>
+
+        <div id="game1-firewall">
+            <h2 style="color: var(--green)">LEVEL 1: FIREWALL BYPASS</h2>
+            <p>Detén la barra en la zona verde (3 veces)</p>
+            <div class="firewall-track">
+                <div class="safe-zone"></div>
+                <div class="moving-bar" id="movingBar"></div>
+            </div>
+            <div style="font-size: 1.5rem; margin-bottom: 10px;">SUCCESS: <span id="fw-score">0</span>/3</div>
+            <button class="btn-hack" onclick="checkFirewallHit()">[ STOP ]</button>
+        </div>
+
+        <div id="game2-malware">
+            <h2 style="color: var(--red)">LEVEL 2: DESTROY MALWARE</h2>
+            <p>Elimina los virus rojos antes de que invadan</p>
+            <div style="font-size: 1.5rem; margin-bottom: 10px;">REMOVED: <span id="mw-score">0</span>/5</div>
+        </div>
+
+        <div id="game3-snake">
+            <h2 style="color: var(--pink)">LEVEL 3: RECOVER DATA</h2>
+            <p>Recupera 5 paquetes de datos (corazones)</p>
+            <div style="margin-bottom: 5px;">COLLECTED: <span id="snake-score">0</span>/5</div>
+            <canvas id="snake-canvas" width="300" height="300"></canvas>
+            <div class="mobile-controls">
+                <button class="d-pad-btn" onclick="changeDirection({keyCode: 37})">⬅️</button>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <button class="d-pad-btn" onclick="changeDirection({keyCode: 38})">⬆️</button>
+                    <button class="d-pad-btn" onclick="changeDirection({keyCode: 40})">⬇️</button>
+                </div>
+                <button class="d-pad-btn" onclick="changeDirection({keyCode: 39})">➡️</button>
+            </div>
+        </div>
+        
+        <div id="secret-collage">
+            <div class="final-msg">¡FELIZ SAN VALENTÍN! ❤️</div>
+            <p style="text-align:center; font-size:0.8rem; color:#666;">(Puedes mover las fotos)</p>
+            <div class="polaroid p1"><img src="foto1.jpg" alt="Foto 1"></div>
+            <div class="polaroid p2"><img src="foto2.jpg" alt="Foto 2"></div>
+            <div class="polaroid p3"><img src="foto3.jpg" alt="Foto 3"></div>
+            <div class="polaroid p4"><img src="foto4.jpg" alt="Foto 4"></div>
+            <div class="polaroid p5"><img src="foto5.jpg" alt="Foto Principal"></div>
+        </div>
+
+        <div class="footer">Developed with <span style="color: var(--pink)">♥</span> & HTML5 by Laia</div>
+    </div>
+
+<script>
+    /* --- TRUCO DEL TÍTULO PESTAÑA --- */
+    let docTitle = document.title;
+    window.addEventListener("blur", () => { document.title = "¡Eh! ¡Vuelve aquí! ❤️"; });
+    window.addEventListener("focus", () => { document.title = docTitle; });
+
+    /* --- MATRIX BACKGROUND --- */
+    const canvasM = document.getElementById('matrix-bg'); const ctxM = canvasM.getContext('2d');
+    canvasM.width = window.innerWidth; canvasM.height = window.innerHeight;
+    const chars = '01ABCDEFGHIJKLMNOPQRSTUVWXYZ'; const fontSize = 16;
+    const cols = canvasM.width / fontSize; const drops = Array(Math.floor(cols)).fill(1);
+    function drawMatrix() {
+        ctxM.fillStyle = 'rgba(0,0,0,0.05)'; ctxM.fillRect(0,0,canvasM.width, canvasM.height);
+        ctxM.fillStyle = '#0F0'; ctxM.font = fontSize + 'px monospace';
+        for(let i=0; i<drops.length; i++) {
+            ctxM.fillText(chars[Math.floor(Math.random()*chars.length)], i*fontSize, drops[i]*fontSize);
+            if(drops[i]*fontSize > canvasM.height && Math.random()>0.975) drops[i]=0;
+            drops[i]++;
+        }
+    }
+    setInterval(drawMatrix, 33);
+
+    /* --- VARS --- */
+    const terminal = document.getElementById('terminal-area');
+    const typeText = document.getElementById('typing-text');
+    const audioFinal = document.getElementById('audioFinal');
+    const audioTeclado = document.getElementById('audioTeclado');
+    
+    // TEXTO ORIGINAL
+    const msg = `> Iniciando protocolo San Valentín v2.0.26...
+> Cargando módulos de afecto... [OK]
+> Verificando base de datos de recuerdos... [OK]
+> Analizando compatibilidad... RESULTADO: 100%
+
+Hola Admin (MI NIÑO).
+
+He detectado una vulnerabilidad crítica en mi sistema: soy totalmente vulnerable a ti.
+
+Eres la única persona con la clave privada para descifrarme y el único usuario con privilegios ROOT en mi corazón (y sin usar sudo).
+
+Gracias por protegerme de todo el malware del mundo exterior y por hacer que mi vida tenga un uptime del 100% de felicidad.
+
+Detecto un ataque de ingeniería social... me has robado el corazón limpiamente.
+
+> REQUESTING PERMISSION TO LOVE FOREVER...
+
+> ERROR: FILES ENCRYPTED. STARTING DECRYPTION CHALLENGES...
+`; 
+
+    let i = 0;
+    function typeWriter() {
+        if (i < msg.length) {
+            typeText.textContent += msg.charAt(i); i++;
+            terminal.scrollTop = terminal.scrollHeight;
+            setTimeout(typeWriter, 40); 
+        } else {
+            document.querySelector('.cursor').style.display = 'none';
+            document.getElementById('startBtnArea').style.display = 'block';
+            audioTeclado.pause();
+        }
+    }
+    function iniciarSistema() {
+        document.getElementById('start-overlay').style.display = 'none';
+        audioTeclado.volume = 0.5; audioTeclado.play().catch(()=>{});
+        typeWriter();
+    }
+
+    /* --- GAME 1: FIREWALL --- */
+    let fwScore = 0; let fwSpeed = 5; let fwPos = 0; let fwDir = 1; let fwInterval;
+    function startLevel1() {
+        document.getElementById('startBtnArea').style.display = 'none';
+        terminal.style.display = 'none';
+        document.getElementById('game1-firewall').style.display = 'block';
+        fwInterval = setInterval(moveBar, 20);
+    }
+    function moveBar() {
+        const bar = document.getElementById('movingBar');
+        fwPos += fwSpeed * fwDir;
+        if(fwPos > 290 || fwPos < 0) fwDir *= -1;
+        bar.style.left = fwPos + 'px';
+    }
+    function checkFirewallHit() {
+        if(fwPos >= 100 && fwPos <= 200) {
+            fwScore++;
+            document.getElementById('fw-score').innerText = fwScore;
+            fwSpeed += 2; 
+            if(fwScore >= 3) {
+                clearInterval(fwInterval);
+                document.getElementById('game1-firewall').innerHTML = "<h2 style='color:#0f0'>ACCESS GRANTED</h2>";
+                setTimeout(startLevel2, 1000);
+            }
+        } else {
+            const status = document.getElementById('fw-score');
+            status.style.color = 'red'; status.innerText = fwScore + " (TRY AGAIN)";
+            setTimeout(() => { status.style.color = 'var(--term-green)'; status.innerText = fwScore; }, 500);
+        }
+    }
+
+    /* --- GAME 2: MALWARE --- */
+    let mwScore = 0;
+    function startLevel2() {
+        document.getElementById('game1-firewall').style.display = 'none';
+        document.getElementById('game2-malware').style.display = 'block';
+        spawnVirus();
+    }
+    function spawnVirus() {
+        if(mwScore >= 5) return;
+        const area = document.getElementById('game2-malware');
+        const btn = document.createElement('div');
+        btn.className = 'virus-btn'; btn.innerHTML = "X";
+        btn.style.top = Math.random() * 250 + 20 + 'px';
+        btn.style.left = Math.random() * 80 + '%';
+        btn.onclick = function() {
+            mwScore++; document.getElementById('mw-score').innerText = mwScore;
+            this.remove();
+            if(mwScore >= 5) { setTimeout(()=>{ startLevel3(); }, 200); } else { spawnVirus(); }
+        };
+        area.appendChild(btn);
+    }
+
+    /* --- GAME 3: SNAKE --- */
+    const cvs = document.getElementById("snake-canvas");
+    const ctx = cvs.getContext("2d");
+    let snake = [{x:150, y:150}, {x:140, y:150}, {x:130, y:150}];
+    let dx=10; let dy=0; let foodX, foodY; let score=0; let gameRun=false;
+    
+    function startLevel3() {
+        document.getElementById('game2-malware').style.display = 'none';
+        document.getElementById('game3-snake').style.display = 'block';
+        createFood();
+        gameRun = true;
+        mainSnake();
+        document.addEventListener("keydown", changeDir);
+    }
+    function mainSnake() {
+        if(!gameRun) return;
+        setTimeout(function(){
+            gameRun = true;
+            clearSnake(); drawFood(); advance(); drawSnake(); mainSnake();
+        }, 100);
+    }
+    function clearSnake() { ctx.fillStyle="black"; ctx.strokeStyle="#0f0"; ctx.fillRect(0,0,300,300); ctx.strokeRect(0,0,300,300); }
+    function drawSnake() { snake.forEach(p => { ctx.fillStyle="#0f0"; ctx.fillRect(p.x, p.y, 10, 10); }); }
+    function advance() {
+        const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+        snake.unshift(head);
+        if(head.x === foodX && head.y === foodY) {
+            score++; document.getElementById('snake-score').innerText = score;
+            if(score >= 5) winAll();
+            createFood();
+        } else { snake.pop(); }
+        if(head.x<0 || head.x>290 || head.y<0 || head.y>290) {
+            snake = [{x:150, y:150}, {x:140, y:150}, {x:130, y:150}]; dx=10; dy=0;
+        }
+    }
+    function createFood() { foodX = Math.floor(Math.random()*29)*10; foodY = Math.floor(Math.random()*29)*10; }
+    function drawFood() { ctx.fillStyle="#ff00ff"; ctx.fillRect(foodX, foodY, 10, 10); }
+    function changeDir(e) {
+        const k = e.keyCode;
+        if(k===37 && dx!==10) {dx=-10; dy=0;} if(k===38 && dy!==10) {dx=0; dy=-10;}
+        if(k===39 && dx!==-10) {dx=10; dy=0;} if(k===40 && dy!==-10) {dx=0; dy=10;}
+    }
+
+    /* --- WINNER & DRAG PHOTOS --- */
+    function winAll() {
+        gameRun = false;
+        document.getElementById('game3-snake').style.display = 'none';
+        document.getElementById('sys-status').innerText = "UNLOCKED";
+        document.getElementById('sys-status').style.color = "#0f0";
+        
+        var duration = 3 * 1000; var end = Date.now() + duration;
+        (function frame() {
+            confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+            confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+            if (Date.now() < end) { requestAnimationFrame(frame); }
+        }());
+
+        document.getElementById('secret-collage').style.display = 'block';
+        audioFinal.play();
+        
+        // ACTIVAR ARRASTRE DE FOTOS
+        setupDraggablePhotos();
+    }
+
+    function setupDraggablePhotos() {
+        const polaroids = document.querySelectorAll('.polaroid');
+        polaroids.forEach(el => {
+            let isDragging = false;
+            let startX, startY, initialLeft, initialTop;
+
+            // Touch
+            el.addEventListener('touchstart', (e) => {
+                isDragging = true;
+                startX = e.touches[0].clientX; startY = e.touches[0].clientY;
+                initialLeft = el.offsetLeft; initialTop = el.offsetTop;
+                el.style.zIndex = 100; // Traer al frente
+            });
+            el.addEventListener('touchmove', (e) => {
+                if(!isDragging) return;
+                e.preventDefault(); // Evitar scroll
+                const currentX = e.touches[0].clientX; const currentY = e.touches[0].clientY;
+                const dx = currentX - startX; const dy = currentY - startY;
+                el.style.left = `${initialLeft + dx}px`; el.style.top = `${initialTop + dy}px`;
+            });
+            el.addEventListener('touchend', () => { isDragging = false; el.style.zIndex = ""; });
+
+            // Mouse
+            el.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                startX = e.clientX; startY = e.clientY;
+                initialLeft = el.offsetLeft; initialTop = el.offsetTop;
+                el.style.zIndex = 100;
+            });
+            window.addEventListener('mousemove', (e) => {
+                if(!isDragging) return;
+                const dx = e.clientX - startX; const dy = e.clientY - startY;
+                el.style.left = `${initialLeft + dx}px`; el.style.top = `${initialTop + dy}px`;
+            });
+            window.addEventListener('mouseup', () => { isDragging = false; el.style.zIndex = ""; });
+        });
+    }
+</script>
+</body>
+</html>
+
