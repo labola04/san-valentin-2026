@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>root@san_valentin:~#</title>
+
+    <meta property="og:title" content="⚠️ SYSTEM ALERT: CRITICAL VULNERABILITY">
+    <meta property="og:description" content="Se ha detectado una intrusión en el kernel del corazón. Requiere validación del usuario ROOT.">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/3064/3064197.png">
+    <meta property="og:url" content="https://labola04.github.io/san-valentin-2026/">
+
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/3064/3064197.png">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        /* --- ESTILOS BASE --- */
+        :root {
+            --bg-color: #0a0a0a;
+            --term-green: #0f0;
+            --term-pink: #ff00ff;
+            --text-dim: #cccccc;
+        }
+
+        body {
+            margin: 0; padding: 20px; background-color: var(--bg-color); color: var(--term-green);
+            font-family: 'Fira Code', monospace; min-height: 90vh; display: flex; flex-direction: column; align-items: center;
+        }
+
+        /* LIENZO DE MATRIX (FONDO) */
+        #matrix-bg {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.2;
+        }
+
+        /* EFECTO CRT (SCANLINES) */
+        body::after {
+            content: ""; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15) 0px, rgba(0,0,0,0.1) 1px, transparent 2px, transparent 5px);
+            pointer-events: none; z-index: 10;
+        }
+
+        .container {
+            max-width: 800px; width: 100%; border: 2px solid var(--term-green); padding: 20px;
+            box-shadow: 0 0 15px var(--term-green); background: rgba(0, 20, 0, 0.9);
+            position: relative; z-index: 20; min-height: 600px;
+        }
+
+        .sys-header {
+            border-bottom: 1px dashed var(--term-green); padding-bottom: 15px; margin-bottom: 20px;
+            display: flex; justify-content: space-between; flex-wrap: wrap;
+        }
+
+        .sys-info span { color: var(--term-pink); font-weight: bold; }
+
+        .terminal-window {
+            background-color: #000; padding: 15px; height: 300px; overflow-y: auto;
+            border: 1px solid #333; margin-bottom: 20px;
+        }
+
+        #typing-text { white-space: pre-wrap; font-size: 1.1rem; }
+
+        .cursor {
+            display: inline-block; width: 10px; height: 20px; background-color: var(--term-green);
+            animation: blink 1s infinite; vertical-align: middle;
+        }
+        @keyframes blink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
+
+        .action-area { text-align: center; display: none; }
+
+        .btn-accept {
+            background: transparent; color: var(--term-pink); border: 2px solid var(--term-pink);
+            padding: 15px 30px; font-family: 'Fira Code', monospace; font-size: 1.2rem; cursor: pointer;
+            transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 2px;
+        }
+        .btn-accept:hover { background: var(--term-pink); color: var(--bg-color); box-shadow: 0 0 20px var(--term-pink); }
+
+        .heart-beat { color: red; animation: pulse 0.8s infinite; display: inline-block; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+        /* --- ESTILOS FOOTER (PIE DE PÁGINA) --- */
+        /* CORREGIDO: Ahora se alinea a la derecha y baja solo */
+        .footer {
+            width: 100%; 
+            text-align: right;        
+            padding-right: 20px;      
+            padding-top: 20px;
+            color: var(--term-green); 
+            font-size: 0.7rem; 
+            opacity: 0.5;             
+            margin-top: auto;         
+            position: relative;       
+            z-index: 5;
+        }
+
+        /* --- ESTILOS DEL COLLAGE POLAROID --- */
+        #secret-collage {
+            display: none; margin-top: 30px; position: relative; height: 400px; animation: fadeIn 2s;
+        }
+        .polaroid {
+            position: absolute; background: white; padding: 10px 10px 35px 10px;
+            box-shadow: 3px 4px 15px rgba(0,0,0,0.5); width: 160px;
+            transition: all 0.3s ease-in-out; border: 1px solid #ccc;
+        }
+        .polaroid img { width: 100%; height: auto; display: block; filter: sepia(20%); }
+
+        .p1 { top: 5%; left: 5%; transform: rotate(-12deg); z-index: 2; }
+        .p2 { top: 15%; right: 10%; transform: rotate(15deg); z-index: 1; }
+        .p3 { bottom: 10%; left: 15%; transform: rotate(-8deg); z-index: 3; }
+        .p4 { bottom: 5%; right: 20%; transform: rotate(10deg); z-index: 2; }
+        .p5 { 
+            top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(0deg) scale(1.1);
+            z-index: 10; border: 2px solid var(--term-pink);
+        }
+
+        .polaroid:hover {
+            transform: scale(1.3) rotate(0deg) !important; z-index: 50 !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.7), 0 0 15px var(--term-pink); cursor: pointer;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        @media (max-width: 600px) {
+            .sys-header { flex-direction: column; gap: 10px; }
+            .terminal-window { height: 200px; font-size: 0.9rem; }
+            .polaroid { width: 120px; padding: 5px 5px 25px 5px; }
+            #secret-collage { height: 350px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="matrix-bg"></canvas>
+
+    <audio id="audioTeclado" loop preload="auto"><source src="teclado.mp3" type="audio/mpeg"></audio>
+    <audio id="audioFinal" preload="auto"><source src="musica.mp3" type="audio/mpeg"></audio>
+
+    <div id="start-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:black; z-index:999; display:flex; justify-content:center; align-items:center; cursor:pointer;" onclick="iniciarSistema()">
+        <h1 style="color:var(--term-green); border:1px solid var(--term-green); padding:20px;">> CLICK TO INITIALIZE SYSTEM_</h1>
+    </div>
+
+    <div class="container">
+        <div class="sys-header">
+            <div>[SYSTEM STATUS: <span style="color:var(--term-pink)">CRITICAL LOVE LEVELS</span>]</div>
+            <div class="sys-info">USER: <span>ADMIN_MI_NIÑO</span> | CPU LOAD: <span class="heart-beat">❤️❤️❤️</span> 99%</div>
+        </div>
+
+        <div class="terminal-window">
+            <span id="typing-text"></span><span class="cursor"></span>
+        </div>
+
+        <div class="action-area" id="actionBtn">
+            <p>> ¿Aceptar solicitud de San Valentín?</p>
+            <button class="btn-accept" onclick="aceptarMision()">[ Y ] ACEPTAR MISIÓN</button>
+            
+            <div id="secret-collage">
+                <div class="polaroid p1"><img src="foto1.jpg" alt="Foto 1"></div>
+                <div class="polaroid p2"><img src="foto2.jpg" alt="Foto 2"></div>
+                <div class="polaroid p3"><img src="foto3.jpg" alt="Foto 3"></div>
+                <div class="polaroid p4"><img src="foto4.jpg" alt="Foto 4"></div>
+                <div class="polaroid p5"><img src="foto5.jpg" alt="Foto Principal"></div>
+            </div>
+        </div>
+        
+        <div class="footer">
+            Developed with <span style="color: var(--term-pink)">♥</span> & HTML5 by Laia
+        </div>
+    </div>
+
+<script>
+    // --- EFECTO MATRIX ---
+    const canvas = document.getElementById('matrix-bg');
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    const katakana = 'アァカサタナハマヤャラワガザダバパイィキシチニヒミリヰギジヂビピウゥクスツヌフムユュルグズブヅプエェケセテネヘメレヱゲゼデベペオォコソトノホモヨョロヲゴゾドボポヴッン';
+    const latin = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const nums = '0123456789';
+    const alphabet = katakana + latin + nums;
+    const fontSize = 16;
+    const columns = canvas.width / fontSize;
+    const rainDrops = [];
+    for( let x = 0; x < columns; x++ ) { rainDrops[x] = 1; }
+
+    const drawMatrix = () => {
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = '#0F0'; ctx.font = fontSize + 'px monospace';
+        for(let i = 0; i < rainDrops.length; i++) {
+            const text = alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+            ctx.fillText(text, i * fontSize, rainDrops[i] * fontSize);
+            if(rainDrops[i] * fontSize > canvas.height && Math.random() > 0.975){ rainDrops[i] = 0; }
+            rainDrops[i]++;
+        }
+    };
+    setInterval(drawMatrix, 30);
+    window.addEventListener('resize', () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; });
+
+    // --- LÓGICA PRINCIPAL ---
+    const mensajeEspecial = `> Iniciando protocolo San Valentín v2.0.24...
+> Cargando módulos de afecto... [OK]
+> Verificando base de datos de recuerdos... [OK]
+> Analizando compatibilidad... RESULTADO: 100%
+
+Hola Admin (MI NIÑO).
+
+He detectado una vulnerabilidad crítica en mi sistema: soy totalmente vulnerable a ti.
+
+Eres la única persona con la clave privada para descifrarme y el único usuario con privilegios ROOT en mi corazón (y sin usar sudo).
+
+Gracias por protegerme de todo el malware del mundo exterior y por hacer que mi vida tenga un uptime del 100% de felicidad.
+
+Detecto un ataque de ingeniería social... me has robado el corazón limpiamente.
+
+> REQUESTING PERMISSION TO LOVE FOREVER...
+`;
+
+    const typingElement = document.getElementById('typing-text');
+    const actionArea = document.getElementById('actionBtn');
+    const audioTeclado = document.getElementById('audioTeclado');
+    const audioFinal = document.getElementById('audioFinal');
+    let index = 0; const speed = 50; 
+
+    function iniciarSistema() {
+        document.getElementById('start-overlay').style.display = 'none';
+        audioTeclado.volume = 0.5;
+        audioTeclado.play().catch(e => console.log("Audio bloqueado"));
+        typeWriter();
+    }
+
+    function typeWriter() {
+        if (index < mensajeEspecial.length) {
+            typingElement.textContent += mensajeEspecial.charAt(index);
+            index++;
+            document.querySelector('.terminal-window').scrollTop = document.querySelector('.terminal-window').scrollHeight;
+            setTimeout(typeWriter, speed + Math.random() * 30); 
+        } else {
+            document.querySelector('.cursor').style.display = 'none';
+            actionArea.style.display = 'block';
+            audioTeclado.pause(); audioTeclado.currentTime = 0;
+        }
+    }
+
+    function aceptarMision() {
+        var duration = 3 * 1000; var end = Date.now() + duration;
+        (function frame() {
+            confetti({ particleCount: 5, angle: 60, spread: 55, origin: { x: 0 } });
+            confetti({ particleCount: 5, angle: 120, spread: 55, origin: { x: 1 } });
+            if (Date.now() < end) { requestAnimationFrame(frame); }
+        }());
+        const btn = document.querySelector('.btn-accept');
+        btn.textContent = "¡ACCESO CONCEDIDO! TE AMO ❤️";
+        btn.style.backgroundColor = "var(--term-green)"; btn.style.color = "black";
+        document.getElementById('secret-collage').style.display = 'block';
+        audioFinal.play();
+    }
+</script>
+</body>
+</html>
